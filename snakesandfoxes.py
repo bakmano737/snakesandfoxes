@@ -43,7 +43,7 @@ def drawBoard(gd, width, height):
     # x2 = cx +   tr * cos(pi - n*2pi/17)
     # y2 = cy -   tr * sin(pi - n*2pi/17)
     for i in range(1,17):
-        theta = (7/16)*math.pi - (i-1)*2*math.pi/16
+        theta = (7/16)*math.pi - (i-1)*math.pi/8
         x1 = int(cx + (tr/8)*math.cos(theta))
         y1 = int(cy - (tr/8)*math.sin(theta))
         x2 = int(cx +     tr*math.cos(theta))
@@ -51,6 +51,33 @@ def drawBoard(gd, width, height):
         pg.draw.line(gd,(0,0,255),(x1,y1),(x2,y2),3)
 
     pg.display.flip()
+
+# It is one thing to draw the board, but as of yet this board has no
+# representation for the program to use. To give the program a 
+# useful representation of the board, I will create a Node class that
+# represents the intersections of rings and spokes. The connectivity
+# provided by the rings and spokes will be represented by each node
+# as three adjacent nodes. This will allow pathfinding algorithms
+# to make "moves" on the board.
+class Node:
+    # Adjacency can not be completed until all nodes are instantiated
+    # Therefore, we will instantiate each Node empty at first, and
+    # allow the graph class to assign attribute to each node
+    def __init__(self):
+        self.node = 0 # Node ID
+        self.ring = 0 # Position of node relative to center point (x)
+        self.spok = 0 # Position of node relative to center point (y)
+        self.Adjacents = None  # Nodes that can be attained from this node
+        self.occupancy = False # Is there a token on this node?
+        pass
+
+    # Graph Class knows each node's position and adjacency by ID
+    # Graph Class will call this setter
+    def setNode(self,nid,rg,sk,Adj):
+        self.node = nid
+        self.ring = rg
+        self.spok = sk
+        self.Adjacents = Adj
 
 def main():
 
