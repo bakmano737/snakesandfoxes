@@ -55,6 +55,7 @@ def main():
 
     # Draw the game board
     drawBoard(gameDisp, width, height)
+    # Draw the tokens on the board
     drawTokens(gameDisp, tokens)
 
     game = True
@@ -66,7 +67,6 @@ def main():
 
     pg.quit()
 
-
 ### The Board ###
 # The board is composed of eight concentric circles and 16 'spokes'
 # There would only be eight spokes if each passed completely through the
@@ -75,16 +75,19 @@ def main():
 # at each of the sixteen spokes on the outter-most circle; alternating
 # snakes and foxes. The player's piece begins inside the inner-most circle.
 def drawBoard(gd, width, height):
+    # Get dimensions of the surface
+    w,h = pg.display.get_surface().get_size()
+    # Center point of circles is at midpoint of surface
+    cx = int(w/2)
+    cy = int(h/2)
+    # Total Radius is 48% of height
+    tr = int(48*h/100)
     # Draw the eight circles
-    # Center point is midpoint
-    cx = int(width/2)
-    cy = int(height/2)
-    # Total Radius is 45% of height
-    tr = int(48*height/100)
     # Draw outer-most blue circle
     pg.draw.circle(gd, (0,0,255), (cx,cy), tr)
+    # Need black fill in between circles
     pg.draw.circle(gd, (0,0,0),   (cx,cy), tr-3)
-    # Draw the interior red & green circles
+    # Draw the six interior red & green circles
     for i in range(7,2,-2):
         pg.draw.circle(gd, (255,0,0), (cx,cy), int(i*tr/8))
         pg.draw.circle(gd, (0,0,0),   (cx,cy), int(i*tr/8-3))
@@ -107,25 +110,39 @@ def drawBoard(gd, width, height):
         x2 = int(cx +     tr*math.cos(theta))
         y2 = int(cy -     tr*math.sin(theta))
         pg.draw.line(gd,(0,0,255),(x1,y1),(x2,y2),3)
-
+    # Push drawings to display
     pg.display.flip()
 
+# The tokens represent the games various "players" which are the user
+# player's purple token, the snakes eight yellow tokens and the foxes
+# cyan tokens. In the future the plan is to replace to single colored
+# circles with images representative of the token type
 def drawTokens(disp, tokens):
+    # Get surface dimensions
     w,h = pg.display.get_surface().get_size()
+    # Circle center is at surface midpoint
     cx = int(w/2)
     cy = int(h/2)
+    # Total radius is 48% surface height
     tr = int(48*h/100)
+    # Separate tokens
     snakes,foxes,player = tokens
+    # Draw the snakes in yellow
     for snake in snakes:
         sx,sy = getRealCoords(snake.pos, tr, cx, cy)
         pg.draw.circle(disp, (255,255,0), (sx,sy), 7)
+    # Draw the foxes in cyan
     for fox in foxes:
         fx,fy = getRealCoords(fox.pos, tr, cx, cy)
         pg.draw.circle(disp, (0,255,255), (fx,fy), 7)
+    # Draw the player in purple
     px,py = getRealCoords(player.pos, tr, cx, cy)
-    pg.draw.circle(disp,(255,255,255), (px,py), 7)
+    pg.draw.circle(disp,(255,0,255), (px,py), 7)
+    # Push drawings to display
     pg.display.flip()
 
+# Helper function that yields the surface coordinates of a node
+# based on the pre-determined board position and size
 def getRealCoords(node, tr, cx, cy):
     ring = node.ring
     spok = node.spok
@@ -176,6 +193,7 @@ class Token:
         self.id=tid
         self.typ=typ # Snake, Fox, or Player
         self.pos=pos # Node on which the token sits
+        self.pos.ocpy=True
 
 
 main()
