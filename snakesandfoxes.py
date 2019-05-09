@@ -16,7 +16,7 @@ import math, csv
 # The spokes begin at the outter-most circle. The non-player pieces begin 
 # at each of the sixteen spokes on the outter-most circle; alternating
 # snakes and foxes. The player's piece begins inside the inner-most circle.
-def drawBoard(gd, width, height):
+def drawBoard(gd, width, height, graph):
     # Draw the eight circles
     # Center point is midpoint
     cx = int(width/2)
@@ -50,7 +50,21 @@ def drawBoard(gd, width, height):
         y2 = int(cy -     tr*math.sin(theta))
         pg.draw.line(gd,(0,0,255),(x1,y1),(x2,y2),3)
 
+    # For Testing: Draw circles at each node
+    for nde in graph:
+        x,y = getRealCoords(nde.ring,nde.spok,tr,cx,cy)
+        pg.draw.circle(gd, (255,255,255), (x,y), 5)
+
+
     pg.display.flip()
+
+def getRealCoords(ring, spok, tr, cx, cy):
+    theta = 7*math.pi/16 - (spok-1)*math.pi/8
+    sx = ring * (tr/8)*math.cos(theta)
+    sy = ring * (tr/8)*math.sin(theta)
+    rx = int(cx + sx)
+    ry = int(cy - sy)
+    return (rx,ry)
 
 ### The Graph ###
 # It is one thing to draw the board, but as of yet this board has no
@@ -97,35 +111,24 @@ def main():
 
     # Set Up the Game Board
     # Create 129 empty nodes
-    Nodes = [Node() for i in range(129)]
+    graph = [Node() for i in range(129)]
     # Start by giving node 0 it's special adjacency
-    Nodes[0].Adjs = Nodes[1:16]
+    graph[0].Adjs = graph[1:16]
     # Read the CSV File that contains the node attriubtes
     with open('AdjacencyTree.csv', 'rt') as NodeData:
         ND = csv.DictReader(NodeData, delimiter=',')
         for ndData in ND:
-            nde = Nodes[int(ndData['Node'])]
+            nde = graph[int(ndData['Node'])]
             nde.node = int(ndData['Node'])
             nde.ring = int(ndData['Ring'])
             nde.spok = int(ndData['Spoke'])
             adj1 = int(ndData['Adj1'])
             adj2 = int(ndData['Adj2'])
             adj3 = int(ndData['Adj3'])
-            nde.Adjs = (Nodes[adj1],Nodes[adj2],Nodes[adj3])
-    
-    # Test Node attribute input
-    for node in Nodes:
-        print("Node:")
-        print(node.node)
-        print(node.ring)
-        print(node.spok)
-        print(node.Adjs[0].node)
-        print(node.Adjs[1].node)
-        print(node.Adjs[2].node)
-        
-    
+            nde.Adjs = (graph[adj1],graph[adj2],graph[adj3])
+
     # Draw the game board
-    drawBoard(gameDisp,width,height)
+    drawBoard(gameDisp,width,height,graph)
 
     game = True
     while game:
