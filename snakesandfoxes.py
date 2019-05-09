@@ -52,24 +52,36 @@ def drawBoard(gd, width, height):
 
     pg.display.flip()
 
+### The Graph ###
 # It is one thing to draw the board, but as of yet this board has no
 # representation for the program to use. To give the program a 
 # useful representation of the board, I will create a Node class that
-# represents the intersections of rings and spokes. The connectivity
-# provided by the rings and spokes will be represented by each node
-# as three adjacent nodes. This will allow pathfinding algorithms
-# to make "moves" on the board.
+# represents the intersections of rings and spokes. Links are implicit
+# in that they all have uniform cost and each node has knowledge of the
+# nodes that can be reached in one move. This Node/Link approach will
+# allow me to use graph algorithms to find shortest paths etc...
+#
+# Regarding Numbering:
+# Each ring is numbered such that the inner-most ring is ring 1
+# and the outer-most ring is ring 8. (Ring 0 is the center point)
+# Furthermore, the spokes are numbered such that Spoke 1 is at "1 o'clock"
+# and Spoke 16 is at "11 o'clock" (only spoke 1 is at the "same time")
+# There are 16 spokes so the spokes do not line up with the clock exactly
+# Spoke 0 also corresponds to the center-point
+# The nodes are numbered such that Node 1 is at Ring 1, Spoke 1 and
+# ascending in "Spoke Major Order", e.g. Node 2 is Ring 1, Spoke 2,
+# Node 17 is Ring 2, Spoke 1, and Node 41 is Ring 3, Spoke 9
+# Node 0, Ring 0, and Spoke 0 are unique and represent the center point.
 class Node:
     # Adjacency can not be completed until all nodes are instantiated
     # Therefore, we will instantiate each Node empty at first, and
     # allow the graph class to assign attribute to each node
     def __init__(self):
         self.node = 0 # Node ID
-        self.ring = 0 # Position of node relative to center point (x)
+        self.ring = 0 # Ring Number of intersection (0 is center point)
         self.spok = 0 # Position of node relative to center point (y)
-        self.Adjacents = None  # Nodes that can be attained from this node
-        self.occupancy = False # Is there a token on this node?
-        pass
+        self.Adjs = None  # Nodes that can be attained from this node
+        self.ocpy = False # Is there a token on this node?
 
     # Graph Class knows each node's position and adjacency by ID
     # Graph Class will call this setter
@@ -77,17 +89,21 @@ class Node:
         self.node = nid
         self.ring = rg
         self.spok = sk
-        self.Adjacents = Adj
+        self.Adjs = Adj
 
 def main():
 
+    # Initialize Pygame
     pg.init()
 
+    # Use pygame to determine display size
     dispInfo = pg.display.Info()
     width    = int(0.5*dispInfo.current_w)
     height   = int(0.5*dispInfo.current_h)
+    # Create the game display at half the full display size
     gameDisp = pg.display.set_mode((width,height))
 
+    # Draw the game board
     drawBoard(gameDisp,width,height)
 
     game = True
