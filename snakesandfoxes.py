@@ -9,6 +9,53 @@
 import pygame as pg
 import math, csv
 
+### The Control ###
+# The Control of this relatively simple are left to the main procedure
+# The main procedure handles initialization and hosts the game loop
+# There are several helper functions used by the main to keep things
+# somewhat clean.
+def main():
+    # Initialize Pygame
+    pg.init()
+    clock = pg.time.Clock()
+    # Use pygame to determine display size
+    dispInfo = pg.display.Info()
+    width    = int(0.5*dispInfo.current_w)
+    height   = int(0.5*dispInfo.current_h)
+    # Create the game display at half the full display size
+    gameDisp = pg.display.set_mode((width,height))
+
+    # Set Up the Game Board
+    # Create 129 empty nodes
+    graph = [Node() for i in range(129)]
+    # Start by giving node 0 it's special adjacency
+    graph[0].Adjs = graph[1:16]
+    # Read the CSV File that contains the node attriubtes
+    with open('AdjacencyTree.csv', 'rt') as NodeData:
+        ND = csv.DictReader(NodeData, delimiter=',')
+        for ndData in ND:
+            nde = graph[int(ndData['Node'])]
+            nde.node = int(ndData['Node'])
+            nde.ring = int(ndData['Ring'])
+            nde.spok = int(ndData['Spoke'])
+            adj1 = int(ndData['Adj1'])
+            adj2 = int(ndData['Adj2'])
+            adj3 = int(ndData['Adj3'])
+            nde.Adjs = (graph[adj1],graph[adj2],graph[adj3])
+
+    # Draw the game board
+    drawBoard(gameDisp,width,height)
+
+    game = True
+    while game:
+        clock.tick(30)
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                game = False
+
+    pg.quit()
+
+
 ### The Board ###
 # The board is composed of eight concentric circles and 16 'spokes'
 # There would only be eight spokes if each passed completely through the
@@ -16,7 +63,7 @@ import math, csv
 # The spokes begin at the outter-most circle. The non-player pieces begin 
 # at each of the sixteen spokes on the outter-most circle; alternating
 # snakes and foxes. The player's piece begins inside the inner-most circle.
-def drawBoard(gd, width, height, graph):
+def drawBoard(gd, width, height):
     # Draw the eight circles
     # Center point is midpoint
     cx = int(width/2)
@@ -49,12 +96,6 @@ def drawBoard(gd, width, height, graph):
         x2 = int(cx +     tr*math.cos(theta))
         y2 = int(cy -     tr*math.sin(theta))
         pg.draw.line(gd,(0,0,255),(x1,y1),(x2,y2),3)
-
-    # For Testing: Draw circles at each node
-    for nde in graph:
-        x,y = getRealCoords(nde.ring,nde.spok,tr,cx,cy)
-        pg.draw.circle(gd, (255,255,255), (x,y), 5)
-
 
     pg.display.flip()
 
@@ -97,46 +138,5 @@ class Node:
         self.Adjs = None  # Nodes that can be attained from this node
         self.ocpy = False # Is there a token on this node?
 
-def main():
-
-    # Initialize Pygame
-    pg.init()
-    clock = pg.time.Clock()
-    # Use pygame to determine display size
-    dispInfo = pg.display.Info()
-    width    = int(0.5*dispInfo.current_w)
-    height   = int(0.5*dispInfo.current_h)
-    # Create the game display at half the full display size
-    gameDisp = pg.display.set_mode((width,height))
-
-    # Set Up the Game Board
-    # Create 129 empty nodes
-    graph = [Node() for i in range(129)]
-    # Start by giving node 0 it's special adjacency
-    graph[0].Adjs = graph[1:16]
-    # Read the CSV File that contains the node attriubtes
-    with open('AdjacencyTree.csv', 'rt') as NodeData:
-        ND = csv.DictReader(NodeData, delimiter=',')
-        for ndData in ND:
-            nde = graph[int(ndData['Node'])]
-            nde.node = int(ndData['Node'])
-            nde.ring = int(ndData['Ring'])
-            nde.spok = int(ndData['Spoke'])
-            adj1 = int(ndData['Adj1'])
-            adj2 = int(ndData['Adj2'])
-            adj3 = int(ndData['Adj3'])
-            nde.Adjs = (graph[adj1],graph[adj2],graph[adj3])
-
-    # Draw the game board
-    drawBoard(gameDisp,width,height,graph)
-
-    game = True
-    while game:
-        clock.tick(30)
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                game = False
-
-    pg.quit()
 
 main()
