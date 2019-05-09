@@ -138,5 +138,15 @@ class Node:
         self.Adjs = None  # Nodes that can be attained from this node
         self.ocpy = False # Is there a token on this node?
 
+### The Tokens ###
+# To represent the game pieces I will create a Token Class. This class
+# will have the necessary information to distinguish between the types
+# of pieces and to locate the piece on the board
+class Token:
+    def __init__(self,tid,typ,pos):
+        self.id=tid
+        self.typ=typ # Snake, Fox, or Player
+        self.pos=pos # Node on which the token sits
+
 
 main()
