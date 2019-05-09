@@ -7,7 +7,7 @@
 # I will be using pygame (for the first time) to draw the board
 # I plan to also use pygame to animate the pieces when the time comes
 import pygame as pg
-import math
+import math, csv
 
 ### The Board ###
 # The board is composed of eight concentric circles and 16 'spokes'
@@ -83,19 +83,11 @@ class Node:
         self.Adjs = None  # Nodes that can be attained from this node
         self.ocpy = False # Is there a token on this node?
 
-    # Graph Class knows each node's position and adjacency by ID
-    # Graph Class will call this setter
-    def setNode(self,nid,rg,sk,Adj):
-        self.node = nid
-        self.ring = rg
-        self.spok = sk
-        self.Adjs = Adj
-
 def main():
 
     # Initialize Pygame
     pg.init()
-
+    clock = pg.time.Clock()
     # Use pygame to determine display size
     dispInfo = pg.display.Info()
     width    = int(0.5*dispInfo.current_w)
@@ -103,12 +95,41 @@ def main():
     # Create the game display at half the full display size
     gameDisp = pg.display.set_mode((width,height))
 
+    # Set Up the Game Board
+    # Create 129 empty nodes
+    Nodes = [Node() for i in range(129)]
+    # Start by giving node 0 it's special adjacency
+    Nodes[0].Adjs = Nodes[1:16]
+    # Read the CSV File that contains the node attriubtes
+    with open('AdjacencyTree.csv', 'rt') as NodeData:
+        ND = csv.DictReader(NodeData, delimiter=',')
+        for ndData in ND:
+            nde = Nodes[int(ndData['Node'])]
+            nde.node = int(ndData['Node'])
+            nde.ring = int(ndData['Ring'])
+            nde.spok = int(ndData['Spoke'])
+            adj1 = int(ndData['Adj1'])
+            adj2 = int(ndData['Adj2'])
+            adj3 = int(ndData['Adj3'])
+            nde.Adjs = (Nodes[adj1],Nodes[adj2],Nodes[adj3])
+    
+    # Test Node attribute input
+    for node in Nodes:
+        print("Node:")
+        print(node.node)
+        print(node.ring)
+        print(node.spok)
+        print(node.Adjs[0].node)
+        print(node.Adjs[1].node)
+        print(node.Adjs[2].node)
+        
+    
     # Draw the game board
     drawBoard(gameDisp,width,height)
 
     game = True
     while game:
-
+        clock.tick(30)
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 game = False
