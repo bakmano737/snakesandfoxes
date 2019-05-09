@@ -43,8 +43,19 @@ def main():
             adj3 = int(ndData['Adj3'])
             nde.Adjs = (graph[adj1],graph[adj2],graph[adj3])
 
+    # Set the tokens
+    # Eight snakes placed on the last 8 even nodes
+    snakes = [Token(i,"snakes",graph[128-2*i])   for i in range(8)]
+    # Eight foxes placed on the last 8 odd nodes
+    foxes  = [Token(i, "foxes",graph[128-2*i-1]) for i in range(8)]
+    # One player token placed in the center of the board
+    player = Token(0,"player",graph[0])
+    # Bundle the tokens into a single element
+    tokens = [snakes, foxes, player]
+
     # Draw the game board
-    drawBoard(gameDisp,width,height)
+    drawBoard(gameDisp, width, height)
+    drawTokens(gameDisp, tokens)
 
     game = True
     while game:
@@ -99,7 +110,25 @@ def drawBoard(gd, width, height):
 
     pg.display.flip()
 
-def getRealCoords(ring, spok, tr, cx, cy):
+def drawTokens(disp, tokens):
+    w,h = pg.display.get_surface().get_size()
+    cx = int(w/2)
+    cy = int(h/2)
+    tr = int(48*h/100)
+    snakes,foxes,player = tokens
+    for snake in snakes:
+        sx,sy = getRealCoords(snake.pos, tr, cx, cy)
+        pg.draw.circle(disp, (255,255,0), (sx,sy), 7)
+    for fox in foxes:
+        fx,fy = getRealCoords(fox.pos, tr, cx, cy)
+        pg.draw.circle(disp, (0,255,255), (fx,fy), 7)
+    px,py = getRealCoords(player.pos, tr, cx, cy)
+    pg.draw.circle(disp,(255,255,255), (px,py), 7)
+    pg.display.flip()
+
+def getRealCoords(node, tr, cx, cy):
+    ring = node.ring
+    spok = node.spok
     theta = 7*math.pi/16 - (spok-1)*math.pi/8
     sx = ring * (tr/8)*math.cos(theta)
     sy = ring * (tr/8)*math.sin(theta)
