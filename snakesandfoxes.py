@@ -7,7 +7,7 @@
 # I will be using pygame (for the first time) to draw the board
 # I plan to also use pygame to animate the pieces when the time comes
 import pygame as pg
-import math, csv
+import math, csv, random
 
 ### The Control ###
 # The Control of this relatively simple are left to the main procedure
@@ -54,13 +54,9 @@ def main():
     # Bundle the tokens into a single element
     tokens = [snakes, foxes, player]
 
+    # Draw the game board & tokens
     updateBoard(gameDisp, tokens)
     
-    # Draw the game board
-    #drawBoard(gameDisp)
-    # Draw the tokens on the board
-    #drawTokens(gameDisp, tokens)
-
     # Player makes an initial 1-move turn to get on the board
     game = True
     pMoves=1
@@ -90,7 +86,14 @@ def main():
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 game = False
-
+        Moves = [0,0,0]
+        turn = 2
+        rolls = diceRoll()
+        for roll in rolls:
+            Moves[int(roll/2)] = Moves[int(roll/2)] + 1
+            print(roll)
+        print(rolls)
+        print(Moves)
     pg.quit()
 
 def elgibileNodes(token, moves):
@@ -104,6 +107,15 @@ def elgibileNodes(token, moves):
         steps=steps2
         moves = moves-1
     return eli
+
+def diceRoll():
+    dovie  = random.randrange(6)
+    andi   = random.randrange(6)
+    se     = random.randrange(6)
+    tovya  = random.randrange(6)
+    sagain = random.randrange(6)
+    pips   = random.randrange(6)
+    return (dovie,andi,se,tovya,sagain,pips)
 
 ### The Board ###
 # The board is composed of eight concentric circles and 16 'spokes'
