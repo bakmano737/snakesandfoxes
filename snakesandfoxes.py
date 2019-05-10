@@ -72,6 +72,11 @@ def main():
             if event.type == pg.QUIT:
                 pMoves=0
                 game=False
+            elif event.type == pg.MOUSEBUTTONUP:
+                # Check if click was in an eligible node
+                clicked = [s for s in eli if s.rect.collidepoint(event.pos)]
+                highlightNodes(gameDisp,clicked)
+                pMoves = 0
 
     while game:
         clock.tick(30)
@@ -98,7 +103,7 @@ def elgibileNodes(token, moves):
 # There would only be eight spokes if each passed completely through the
 # center of the board, but each spoke ends at the inner-most circle.
 # The spokes begin at the outter-most circle. The non-player pieces begin 
-# at each of the sixteen spokes on the outter-most circle; alternating
+# at each of the sixteen spokes on the outter-most circle; alternating 
 # snakes and foxes. The player's piece begins inside the inner-most circle.
 def drawBoard(gd, width, height):
     # Get dimensions of the surface
