@@ -54,10 +54,12 @@ def main():
     # Bundle the tokens into a single element
     tokens = [snakes, foxes, player]
 
+    updateBoard(gameDisp, tokens)
+    
     # Draw the game board
-    drawBoard(gameDisp, width, height)
+    #drawBoard(gameDisp)
     # Draw the tokens on the board
-    drawTokens(gameDisp, tokens)
+    #drawTokens(gameDisp, tokens)
 
     # Player makes an initial 1-move turn to get on the board
     game = True
@@ -107,7 +109,7 @@ def elgibileNodes(token, moves):
 # The spokes begin at the outter-most circle. The non-player pieces begin 
 # at each of the sixteen spokes on the outter-most circle; alternating 
 # snakes and foxes. The player's piece begins inside the inner-most circle.
-def drawBoard(gd, width, height):
+def drawBoard(disp):
     # Get dimensions of the surface
     w,h = pg.display.get_surface().get_size()
     # Center point of circles is at midpoint of surface
@@ -117,18 +119,18 @@ def drawBoard(gd, width, height):
     tr = int(48*h/100)
     # Draw the eight circles
     # Draw outer-most blue circle
-    pg.draw.circle(gd, (0,0,255), (cx,cy), tr)
+    pg.draw.circle(disp, (0,0,255), (cx,cy), tr)
     # Need black fill in between circles
-    pg.draw.circle(gd, (0,0,0),   (cx,cy), tr-3)
+    pg.draw.circle(disp, (0,0,0),   (cx,cy), tr-3)
     # Draw the six interior red & green circles
     for i in range(7,2,-2):
-        pg.draw.circle(gd, (255,0,0), (cx,cy), int(i*tr/8))
-        pg.draw.circle(gd, (0,0,0),   (cx,cy), int(i*tr/8-3))
-        pg.draw.circle(gd, (0,255,0), (cx,cy), int((i-1)*tr/8))
-        pg.draw.circle(gd, (0,0,0),   (cx,cy), int((i-1)*tr/8-3))
+        pg.draw.circle(disp, (255,0,0), (cx,cy), int(i*tr/8))
+        pg.draw.circle(disp, (0,0,0),   (cx,cy), int(i*tr/8-3))
+        pg.draw.circle(disp, (0,255,0), (cx,cy), int((i-1)*tr/8))
+        pg.draw.circle(disp, (0,0,0),   (cx,cy), int((i-1)*tr/8-3))
     # Draw the inner-most blue circle
-    pg.draw.circle(gd, (0,0,255), (cx,cy), int(tr/8))
-    pg.draw.circle(gd, (0,0,0),   (cx,cy), int(tr/8-3))
+    pg.draw.circle(disp, (0,0,255), (cx,cy), int(tr/8))
+    pg.draw.circle(disp, (0,0,0),   (cx,cy), int(tr/8-3))
 
     # Draw the spokes all in blue
     # The end points of spoke n are:
@@ -142,7 +144,7 @@ def drawBoard(gd, width, height):
         y1 = int(cy - (tr/8)*math.sin(theta))
         x2 = int(cx +     tr*math.cos(theta))
         y2 = int(cy -     tr*math.sin(theta))
-        pg.draw.line(gd,(0,0,255),(x1,y1),(x2,y2),3)
+        pg.draw.line(disp,(0,0,255),(x1,y1),(x2,y2),3)
     # Push drawings to display
     pg.display.flip()
 
@@ -178,6 +180,16 @@ def highlightNodes(disp,nodes):
         hx,hy = getRealCoords(node.ring,node.spok)
         pg.draw.circle(disp,(128,0,255),(hx,hy), 4)
     pg.display.flip()
+
+def updateBoard(disp,tokens):
+    # Draw a fresh screen
+    pg.display.get_surface().fill((0,0,0))
+    pg.display.flip()
+    # Re-draw the board
+    drawBoard(disp)
+    # Re-draw the tokens in their new state
+    drawTokens(disp,tokens)
+
 
 # Helper function that yields the surface coordinates of a node
 # based on the pre-determined board position and size
