@@ -38,6 +38,7 @@ def main():
             nde.node = int(ndData['Node'])
             nde.ring = int(ndData['Ring'])
             nde.spok = int(ndData['Spoke'])
+            nde.rect = Node2Rect(nde.ring,nde.spok)
             adj1 = int(ndData['Adj1'])
             adj2 = int(ndData['Adj2'])
             adj3 = int(ndData['Adj3'])
@@ -59,13 +60,22 @@ def main():
     drawTokens(gameDisp, tokens)
 
     # Player makes an initial 1-move turn to get on the board
+    game = True
     pMoves=1
     # Determine eligible spaces
     eli = elgibileNodes(player,pMoves)
     # Highlight eligible spaces
     drawMoves(gameDisp, eli)
+    while pMoves:
+        clock.tick(30)
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                pMoves=0
+                game=False
+            elif event.type == pg.MOUSEBUTTONUP:
+                # Do Stuff
+                pMoves = pMoves - 1
         
-    game = True
     while game:
         clock.tick(30)
         for event in pg.event.get():
@@ -137,30 +147,31 @@ def drawBoard(gd, width, height):
 # cyan tokens. In the future the plan is to replace to single colored
 # circles with images representative of the token type
 def drawTokens(disp, tokens):
-    # Get surface dimensions
-    w,h = pg.display.get_surface().get_size()
-    # Circle center is at surface midpoint
-    cx = int(w/2)
-    cy = int(h/2)
-    # Total radius is 48% surface height
-    tr = int(48*h/100)
     # Separate tokens
     snakes,foxes,player = tokens
     # Draw the snakes in yellow
     for snake in snakes:
-        sx,sy = getRealCoords(snake.pos, tr, cx, cy)
+        sx,sy = getRealCoords(snake.pos.ring,snake.pos.spok)
         pg.draw.circle(disp, (255,255,0), (sx,sy), 7)
     # Draw the foxes in cyan
     for fox in foxes:
-        fx,fy = getRealCoords(fox.pos, tr, cx, cy)
+        fx,fy = getRealCoords(fox.pos.ring,fox.pos.spok)
         pg.draw.circle(disp, (0,255,255), (fx,fy), 7)
     # Draw the player in purple
-    px,py = getRealCoords(player.pos, tr, cx, cy)
+    px,py = getRealCoords(player.pos.ring,player.pos.spok)
     pg.draw.circle(disp,(255,0,255), (px,py), 7)
     # Push drawings to display
     pg.display.flip()
 
 def drawMoves(disp, moves):
+    for move in moves:
+        mx,my = getRealCoords(move.ring,move.spok)
+        pg.draw.circle(disp,(255,255,255), (mx,my), 4)
+    pg.display.flip()
+
+# Helper function that yields the surface coordinates of a node
+# based on the pre-determined board position and size
+def getRealCoords(ring,spok):
     # Get surface dimensions
     w,h = pg.display.get_surface().get_size()
     # Circle center is at surface midpoint
@@ -168,22 +179,17 @@ def drawMoves(disp, moves):
     cy = int(h/2)
     # Total radius is 48% surface height
     tr = int(48*h/100)
-    for move in moves:
-        mx,my = getRealCoords(move, tr, cx, cy)
-        pg.draw.circle(disp,(255,255,255), (mx,my), 4)
-    pg.display.flip()
-
-# Helper function that yields the surface coordinates of a node
-# based on the pre-determined board position and size
-def getRealCoords(node, tr, cx, cy):
-    ring = node.ring
-    spok = node.spok
+    # Angle
     theta = 7*math.pi/16 - (spok-1)*math.pi/8
     sx = ring * (tr/8)*math.cos(theta)
     sy = ring * (tr/8)*math.sin(theta)
     rx = int(cx + sx)
     ry = int(cy - sy)
     return (rx,ry)
+
+def Node2Rect(ring,spok):
+    nx,ny = getRealCoords(ring,spok)
+    return pg.Rect(nx-5,ny-5,10,10)
 
 ### The Graph ###
 # It is one thing to draw the board, but as of yet this board has no
@@ -214,6 +220,7 @@ class Node:
         self.ring = 0 # Ring Number of intersection (0 is center point)
         self.spok = 0 # Position of node relative to center point (y)
         self.Adjs = None  # Nodes that can be attained from this node
+        self.rect = None  # Pygame Rect object for clickedness
         self.ocpy = False # Is there a token on this node?
 
 ### The Tokens ###
