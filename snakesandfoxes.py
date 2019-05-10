@@ -29,7 +29,7 @@ def main():
     # Create 129 empty nodes
     graph = [Node() for i in range(129)]
     # Start by giving node 0 it's special adjacency
-    graph[0].Adjs = graph[1:16]
+    graph[0].Adjs = graph[1:17]
     # Read the CSV File that contains the node attriubtes
     with open('AdjacencyTree.csv', 'rt') as NodeData:
         ND = csv.DictReader(NodeData, delimiter=',')
@@ -58,6 +58,13 @@ def main():
     # Draw the tokens on the board
     drawTokens(gameDisp, tokens)
 
+    # Player makes an initial 1-move turn to get on the board
+    pMoves=1
+    # Determine eligible spaces
+    eli = elgibileNodes(player,pMoves)
+    # Highlight eligible spaces
+    drawMoves(gameDisp, eli)
+        
     game = True
     while game:
         clock.tick(30)
@@ -66,6 +73,18 @@ def main():
                 game = False
 
     pg.quit()
+
+def elgibileNodes(token, moves):
+    steps = token.pos.Adjs
+    while moves:
+        eli = steps
+        steps2 = []
+        for step in steps:
+            steps2.extend(step.Adjs)
+        #print(steps2)
+        steps=steps2
+        moves = moves-1
+    return eli
 
 ### The Board ###
 # The board is composed of eight concentric circles and 16 'spokes'
@@ -139,6 +158,19 @@ def drawTokens(disp, tokens):
     px,py = getRealCoords(player.pos, tr, cx, cy)
     pg.draw.circle(disp,(255,0,255), (px,py), 7)
     # Push drawings to display
+    pg.display.flip()
+
+def drawMoves(disp, moves):
+    # Get surface dimensions
+    w,h = pg.display.get_surface().get_size()
+    # Circle center is at surface midpoint
+    cx = int(w/2)
+    cy = int(h/2)
+    # Total radius is 48% surface height
+    tr = int(48*h/100)
+    for move in moves:
+        mx,my = getRealCoords(move, tr, cx, cy)
+        pg.draw.circle(disp,(255,255,255), (mx,my), 4)
     pg.display.flip()
 
 # Helper function that yields the surface coordinates of a node
