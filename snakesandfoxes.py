@@ -80,7 +80,10 @@ def main():
                 #highlightNodes(gameDisp,clicked)
                 # Move player token to selected node
                 # If the user managed to click more than one node, use 0
+                player.moveToken(click[0])
                 pMoves = 0
+    
+    updateBoard(gameDisp,tokens)
 
     while game:
         clock.tick(30)
