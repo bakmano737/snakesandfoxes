@@ -43,7 +43,7 @@ def main():
             adj2 = int(ndData['Adj2'])
             adj3 = int(ndData['Adj3'])
             nde.Adjs = (graph[adj1],graph[adj2],graph[adj3])
-
+    
     # Set the tokens
     # Eight snakes placed on the last 8 even nodes
     snakes = [Token(i,"snakes",graph[128-2*i])   for i in range(8)]
@@ -72,10 +72,7 @@ def main():
             if event.type == pg.QUIT:
                 pMoves=0
                 game=False
-            elif event.type == pg.MOUSEBUTTONUP:
-                # Do Stuff
-                pMoves = pMoves - 1
-        
+
     while game:
         clock.tick(30)
         for event in pg.event.get():
@@ -169,6 +166,12 @@ def drawMoves(disp, moves):
         pg.draw.circle(disp,(255,255,255), (mx,my), 4)
     pg.display.flip()
 
+def highlightNodes(disp,nodes):
+    for node in nodes:
+        hx,hy = getRealCoords(node.ring,node.spok)
+        pg.draw.circle(disp,(128,0,255),(hx,hy), 4)
+    pg.display.flip()
+
 # Helper function that yields the surface coordinates of a node
 # based on the pre-determined board position and size
 def getRealCoords(ring,spok):
@@ -233,6 +236,5 @@ class Token:
         self.typ=typ # Snake, Fox, or Player
         self.pos=pos # Node on which the token sits
         self.pos.ocpy=True
-
 
 main()
