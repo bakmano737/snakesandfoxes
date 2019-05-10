@@ -87,13 +87,19 @@ def main():
             if event.type == pg.QUIT:
                 game = False
         Moves = [0,0,0]
-        turn = 2
+        turn = 0
         rolls = diceRoll()
         for roll in rolls:
             Moves[int(roll/2)] = Moves[int(roll/2)] + 1
-            print(roll)
-        print(rolls)
-        print(Moves)
+        drawDice(gameDisp,rolls)
+        test = True
+        while test:
+            clock.tick(30)
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    test = False
+                    game = False
+
     pg.quit()
 
 def elgibileNodes(token, moves):
@@ -183,6 +189,51 @@ def drawTokens(disp, tokens):
     pg.draw.circle(disp,(255,0,255), (px,py), 7)
     # Push drawings to display
     pg.display.flip()
+
+def drawDice(disp, rolls):
+    # Get dimensions of the surface
+    w,h = pg.display.get_surface().get_size()
+    # Total Radius is 48% of height
+    tr = int(48*h/100)
+    # First Create Six Rect, one for each dice
+    # Anchor Points
+    # The first three dice have the same x-coords as do the last three
+    dx = 0.15*(w/2 - tr)
+    dw = int((w/2-tr)-2*dx)
+    x1=x2=x3 = int(dx)
+    x4=x5=x6 = int(w-dx-dw)
+    dh = dw
+    dy = int((h - 3*dh)/4)
+    y1=y4 = dy
+    y2=y5 = 2*dy + dh
+    y3=y6 = 3*dy + 2*dh
+    die1 = pg.draw.rect(disp,(255,255,255),pg.Rect(x1,y1,dw,dh))
+    die2 = pg.draw.rect(disp,(255,255,255),pg.Rect(x2,y2,dw,dh))
+    die3 = pg.draw.rect(disp,(255,255,255),pg.Rect(x3,y3,dw,dh))
+    die4 = pg.draw.rect(disp,(255,255,255),pg.Rect(x4,y4,dw,dh))
+    die5 = pg.draw.rect(disp,(255,255,255),pg.Rect(x5,y5,dw,dh))
+    die6 = pg.draw.rect(disp,(255,255,255),pg.Rect(x6,y6,dw,dh))
+    dice = [die1,die2,die3,die4,die5,die6]
+    #Draw the pips
+    pr = int(dh/10) # Pip Radius
+    for die,roll in enumerate(rolls):
+        roll = roll + 1
+        if 1 == roll:
+            # Special Case, at rectangle center
+            px = dice[die].centerx
+            py = dice[die].centery
+            pg.draw.circle(disp,(0,0,0),(px,py),pr)
+        elif 2 <= roll:
+            R = int(dh/4)
+            for i in range(roll):
+                theta = math.pi/2 - (i/roll)*2*math.pi
+                px = R * math.cos(theta)
+                py = R * math.sin(theta)
+                rpx = int(dice[die].centerx + px)
+                rpy = int(dice[die].centery - py)
+                pg.draw.circle(disp,(0,0,0),(rpx,rpy),pr)
+    pg.display.flip()
+
 
 def drawMoves(disp, moves):
     for move in moves:
