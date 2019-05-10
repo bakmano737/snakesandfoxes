@@ -74,8 +74,10 @@ def main():
                 game=False
             elif event.type == pg.MOUSEBUTTONUP:
                 # Check if click was in an eligible node
-                clicked = [s for s in eli if s.rect.collidepoint(event.pos)]
-                highlightNodes(gameDisp,clicked)
+                click = [c for c in eli if c.rect.collidepoint(event.pos)]
+                #highlightNodes(gameDisp,clicked)
+                # Move player token to selected node
+                # If the user managed to click more than one node, use 0
                 pMoves = 0
 
     while game:
@@ -240,6 +242,14 @@ class Token:
         self.id=tid
         self.typ=typ # Snake, Fox, or Player
         self.pos=pos # Node on which the token sits
+        self.pos.ocpy=True
+
+    def moveToken(self,node):
+        # First, unoccupy the current position
+        self.pos.ocpy=False
+        # Next, take the new node
+        self.pos=node
+        # Finally, occupy the new node
         self.pos.ocpy=True
 
 main()
