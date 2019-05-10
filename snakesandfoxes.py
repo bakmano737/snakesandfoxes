@@ -73,11 +73,11 @@ def main():
             elif event.type == pg.MOUSEBUTTONUP:
                 # Check if click was in an eligible node
                 click = [c for c in eli if c.rect.collidepoint(event.pos)]
-                #highlightNodes(gameDisp,clicked)
                 # Move player token to selected node
                 # If the user managed to click more than one node, use 0
-                player.moveToken(click[0])
-                pMoves = 0
+                if click:
+                    player.moveToken(click[0])
+                    pMoves = 0
     
     updateBoard(gameDisp,tokens)
 
