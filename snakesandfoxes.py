@@ -61,7 +61,7 @@ def main():
     game = True
     pMoves=1
     # Determine eligible spaces
-    eli = elgibileNodes(player,pMoves)
+    eli = eligibleNodes(player,pMoves)
     # Highlight eligible spaces
     drawMoves(gameDisp, eli)
     while pMoves:
@@ -82,27 +82,58 @@ def main():
     updateBoard(gameDisp,tokens)
 
     while game:
+        # Every good game loop has this
         clock.tick(30)
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 game = False
+
+        # Turn Initialization
         Moves = [0,0,0]
-        turn = 0
+
+        # Dovie'andi se tovya sagain
         rolls = diceRoll()
+        # Read the dice
         for roll in rolls:
             Moves[int(roll/2)] = Moves[int(roll/2)] + 1
+        # Draw the dice
         drawDice(gameDisp,rolls)
-        test = True
-        while test:
-            clock.tick(30)
-            for event in pg.event.get():
-                if event.type == pg.QUIT:
-                    test = False
-                    game = False
 
+        # Each team takes their turn
+        for turn in range(3):
+            # turn 0 - snakes
+            # turn 1 - foxes
+            # turn 2 - player
+            if 0 == turn: #Snakes Turn
+                # Do Snake Things
+                pass
+            elif 1 == turn: #Foxes Turn
+                # Do Fox things
+                pass
+            elif 2 == turn: #Player Turn
+                # Determine eligible spaces
+                el = eligibleNodes(player,pMoves)
+                # Highlight eligible spaces
+                drawMoves(gameDisp, eli)
+                while Moves[turn]:
+                    clock.tick(30)
+                    for event in pg.event.get():
+                        if event.type == pg.QUIT:
+                            Moves[turn]=0
+                            game=False
+                        elif event.type == pg.MOUSEBUTTONUP:
+                            # Check if click was in an eligible node
+                            p = event.pos
+                            clk = [c for c in el if c.rect.collidepoint(p)]
+                            # Move player token to selected node
+                            if clk:
+                                player.moveToken(clk[0])
+                                Moves[turn] = 0
+            else:
+                print("You broke to turn indicator dummy!")
     pg.quit()
 
-def elgibileNodes(token, moves):
+def eligibleNodes(token, moves):
     steps = token.pos.Adjs
     while moves:
         eli = steps
@@ -122,6 +153,23 @@ def diceRoll():
     sagain = random.randrange(6)
     pips   = random.randrange(6)
     return (dovie,andi,se,tovya,sagain,pips)
+
+def pathFinder(nodeA, nodeB, plen, Path):
+    flen = math.inf
+    if nodeA is nodeB:
+        return (plen,Path)
+    elif nodeB in nodeA.Adjs:
+        plen = plen+1
+        Path.append(nodeB)
+        return (plen,Path)
+    else:
+        for adj in nodeA.Adjs:
+            nlen,nath = pathFinder(adj,nodeB,plen+1,Path)
+            if nlen < flen:
+                flen = nlen
+                nath.append(adj)
+                Path = nath
+        return (flen,Path)
 
 ### The Board ###
 # The board is composed of eight concentric circles and 16 'spokes'
